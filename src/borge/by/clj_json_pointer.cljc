@@ -39,12 +39,13 @@
       (update-in obj (pop v) dissoc (peek v))
       (dissoc obj (first v)))))
 
-(defn- apply-patch [obj {:strs [op path value from] :as patch}]
+(defn- apply-patch [obj {:strs [op path value from]}]
   (case op
     "add"     (op-add obj path value)
     "remove"  (op-remove obj path)
     "replace" (-> (op-remove obj path) (op-add path value))
     "copy"    (op-copy obj path from)
+    "move"    (-> (op-copy obj path from) (op-remove from))
 
     (throw (ex-info (str "unknown operation: " op) {:type "unknown operation" :operation op}))))
 

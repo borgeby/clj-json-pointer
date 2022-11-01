@@ -58,3 +58,12 @@
   (testing "nested copy, with array"
     (is (= (patch {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}} [{"op" "copy" "path" "/a/b/c/-" "from" "/a/b/c/1/d"}])
            {"a" {"b" {"c" [1 {"d" 2 "e" 3} 2]}}}))))
+
+(deftest patch-move-test
+  (testing "simple move"
+    (is (= (patch {"a" 1} [{"op" "move" "path" "/b" "from" "/a"}]) {"b" 1})))
+  (testing "nested move"
+    (is (= (patch {"a" {"b" {"c" 1}}} [{"op" "move" "path" "/a/b/d" "from" "/a/b/c"}]) {"a" {"b" {"d" 1}}})))
+  (testing "nested move, with array"
+    (is (= (patch {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}} [{"op" "move" "path" "/a/b/c/-" "from" "/a/b/c/1/d"}])
+           {"a" {"b" {"c" [1 {"e" 3} 2]}}}))))
