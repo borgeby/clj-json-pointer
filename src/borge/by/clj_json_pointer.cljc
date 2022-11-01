@@ -1,13 +1,18 @@
 (ns borge.by.clj-json-pointer
   (:require [clojure.string :as str]))
 
-(defn- numeric?
-  [s]
+(defn- numeric? [s]
   (re-find #"^\d+$" s))
 
-(defn ->vec
-  [obj pointer]
-  (let [parts (rest (str/split pointer #"/"))]
+(defn escape [s]
+  (-> s (str/replace #"~" "~0")
+      (str/replace "/" "~1")))
+
+(defn unescape [s]
+  (-> s (str/replace #"~0" "~") (str/replace #"~1" "/")))
+
+(defn ->vec [obj pointer]
+  (let [parts (mapv escape (rest (str/split pointer #"/")))]
     (loop [obj* obj parts* parts path* []]
       (cond
         (zero? (count parts*))
@@ -25,7 +30,11 @@
   ;(println obj patch)
   ;(println (->vec obj path))
   (case op
-    "add" (assoc-in obj (->vec obj path) value)
+    "add"    (assoc-in  obj (->vec obj path) value)
+    "remove" (let [v (->vec obj path)]
+               (if (> (count v) 1)
+                 (update-in obj (pop v) dissoc (peek v))
+                 (dissoc obj (first v))))
     ))
 
 (defn patch [obj patches]

@@ -7,7 +7,7 @@ Simple Clojure(Script) library for working with [JSON Pointer](https://www.rfc-e
 
 At the heart of the library is the `->vec` function, which may be used to transform a JSON pointer into a vector
 representing the path of an object or array. This vector is suitable for use with the standard Clojure functions for
-nested updates, such as `get-in`, `assoc-in` and `update-in`:
+nested access or updates, like `get-in`, `assoc-in` and `update-in`:
 
 ```clojure
 (ns app
