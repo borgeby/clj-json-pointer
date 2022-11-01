@@ -30,6 +30,9 @@
 (defn- op-add [obj path value]
   (assoc-in  obj (->vec obj path) value))
 
+(defn- op-copy [obj path from]
+  (op-add obj path (get-in obj (->vec obj from))))
+
 (defn- op-remove [obj path]
   (let [v (->vec obj path)]
     (if (> (count v) 1)
@@ -41,6 +44,7 @@
     "add"     (op-add obj path value)
     "remove"  (op-remove obj path)
     "replace" (-> (op-remove obj path) (op-add path value))
+    "copy"    (op-copy obj path from)
 
     (throw (ex-info (str "unknown operation: " op) {:type "unknown operation" :operation op}))))
 

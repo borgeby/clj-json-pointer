@@ -49,3 +49,12 @@
   (testing "nested replace, with array"
     (is (= (patch {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}} [{"op" "replace" "path" "/a/b/c/1/d" "value" 3}])
            {"a" {"b" {"c" [1 {"d" 3 "e" 3}]}}}))))
+
+(deftest patch-copy-test
+  (testing "simple copy"
+    (is (= (patch {"a" 1} [{"op" "copy" "path" "/b" "from" "/a"}]) {"a" 1 "b" 1})))
+  (testing "nested copy"
+    (is (= (patch {"a" {"b" {"c" 1}}} [{"op" "copy" "path" "/a/b/d" "from" "/a/b/c"}]) {"a" {"b" {"c" 1 "d" 1}}})))
+  (testing "nested copy, with array"
+    (is (= (patch {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}} [{"op" "copy" "path" "/a/b/c/-" "from" "/a/b/c/1/d"}])
+           {"a" {"b" {"c" [1 {"d" 2 "e" 3} 2]}}}))))
