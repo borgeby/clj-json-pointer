@@ -1,4 +1,4 @@
-(ns borge.by.cljs-json-pointer-test
+(ns borge.by.clj-json-pointer-test
   (:require [clojure.test :refer [deftest is testing]]
             [borge.by.clj-json-pointer :refer [escape patch unescape]]))
 

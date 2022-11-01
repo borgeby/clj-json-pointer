@@ -25,3 +25,7 @@ nested access or updates, like `get-in`, `assoc-in` and `update-in`:
 
 (get-in org (json-pointer/->vec org "/department/tech/users/1/roles")) ; => ["platform" "devops"]
 ```
+
+## Development
+
+`clj -X:test` to run the unit tests
