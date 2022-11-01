@@ -5,14 +5,15 @@
   (re-find #"^\d+$" s))
 
 (defn escape [s]
-  (-> s (str/replace #"~" "~0")
-      (str/replace "/" "~1")))
+  (-> s (str/replace #"~" "~0") (str/replace "/" "~1")))
 
 (defn unescape [s]
-  (-> s (str/replace #"~0" "~") (str/replace #"~1" "/")))
+  (if (str/includes? s "~") ; replace is fairly expensive, and escaping fairly rare — optimize for the common case
+    (-> s (str/replace #"~0" "~") (str/replace #"~1" "/"))
+    s))
 
 (defn ->vec [obj pointer]
-  (let [parts (mapv escape (rest (str/split pointer #"/")))]
+  (let [parts (mapv unescape (rest (str/split pointer #"/")))]
     (loop [obj* obj parts* parts path* []]
       (cond
         (zero? (count parts*))
@@ -26,29 +27,22 @@
                            (and (= "-" part)    (vector? obj*)) ((fn [_] (count obj*))))]
           (recur (get obj* pmod) (rest parts*) (conj path* pmod)))))))
 
+(defn- op-add [obj path value]
+  (assoc-in  obj (->vec obj path) value))
+
+(defn- op-remove [obj path]
+  (let [v (->vec obj path)]
+    (if (> (count v) 1)
+      (update-in obj (pop v) dissoc (peek v))
+      (dissoc obj (first v)))))
+
 (defn- apply-patch [obj {:strs [op path value from] :as patch}]
-  ;(println obj patch)
-  ;(println (->vec obj path))
   (case op
-    "add"    (assoc-in  obj (->vec obj path) value)
-    "remove" (let [v (->vec obj path)]
-               (if (> (count v) 1)
-                 (update-in obj (pop v) dissoc (peek v))
-                 (dissoc obj (first v))))
-    ))
+    "add"     (op-add obj path value)
+    "remove"  (op-remove obj path)
+    "replace" (-> (op-remove obj path) (op-add path value))
+
+    (throw (ex-info (str "unknown operation: " op) {:type "unknown operation" :operation op}))))
 
 (defn patch [obj patches]
   (reduce apply-patch obj patches))
-
-(def org
-  {"department"
-   {"tech"
-    {"users"
-     [{"name" "ted"  "roles" ["developer"]}
-      {"name" "jane" "roles" ["platform" "devops"]}]}
-    "finance"
-    {"users"
-     [{"name" "joe"  "roles" ["reports-writer"]}]}}})
-
-(defn -main []
-  (println (get-in org (->vec org "/department/tech/users/1/roles"))))

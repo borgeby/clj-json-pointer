@@ -40,3 +40,12 @@
   (testing "nested remove, with array"
     (is (= (patch {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}} [{"op" "remove" "path" "/a/b/c/1/d"}])
            {"a" {"b" {"c" [1 {"e" 3}]}}}))))
+
+(deftest patch-replace-test
+  (testing "simple replace"
+    (is (= (patch {"a" 1} [{"op" "replace" "path" "/a" "value" 2}]) {"a" 2})))
+  (testing "nested replace"
+    (is (= (patch {"a" {"b" {"c" 1}}} [{"op" "replace" "path" "/a/b/c" "value" 2}]) {"a" {"b" {"c" 2}}})))
+  (testing "nested replace, with array"
+    (is (= (patch {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}} [{"op" "replace" "path" "/a/b/c/1/d" "value" 3}])
+           {"a" {"b" {"c" [1 {"d" 3 "e" 3}]}}}))))
