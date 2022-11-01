@@ -39,6 +39,12 @@
       (update-in obj (pop v) dissoc (peek v))
       (dissoc obj (first v)))))
 
+(defn- op-test [obj path value]
+  (if (= value (get-in obj (->vec obj path)))
+    obj
+    (throw (ex-info (str "test operation failure for path " path " and value " value) {:type "test operation failure"
+                                                                                       :operation "test"}))))
+
 (defn- apply-patch [obj {:strs [op path value from]}]
   (case op
     "add"     (op-add obj path value)
@@ -46,6 +52,7 @@
     "replace" (-> (op-remove obj path) (op-add path value))
     "copy"    (op-copy obj path from)
     "move"    (-> (op-copy obj path from) (op-remove from))
+    "test"    (-> (op-test obj path value))
 
     (throw (ex-info (str "unknown operation: " op) {:type "unknown operation" :operation op}))))
 

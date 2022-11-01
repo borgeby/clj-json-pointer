@@ -67,3 +67,12 @@
   (testing "nested move, with array"
     (is (= (patch {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}} [{"op" "move" "path" "/a/b/c/-" "from" "/a/b/c/1/d"}])
            {"a" {"b" {"c" [1 {"e" 3} 2]}}}))))
+
+(deftest patch-test-test
+  (testing "simple test"
+    (is (= (patch {"a" 1} [{"op" "test" "path" "/a" "value" 1}]) {"a" 1})))
+  (testing "nested test"
+    (is (= (patch {"a" {"b" {"c" 1}}} [{"op" "test" "path" "/a/b/c" "value" 1}]) {"a" {"b" {"c" 1}}})))
+  (testing "nested test, with array"
+    (is (= (patch {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}} [{"op" "test" "path" "/a/b/c/0" "value" 1}])
+           {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}}))))
