@@ -1,0 +1,7 @@
+.clj-kondo/.cache
+.cpcache
+.lsp
+.idea
+.nrepl-*
+
+*.iml

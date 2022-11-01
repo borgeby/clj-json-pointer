@@ -1,0 +1,2 @@
+{:deps {org.clojure/clojure {:mvn/version "1.11.1"}}
+ :aliases {:main {:main-opts ["-m" "borge.by.clj-json-pointer"]}}}
