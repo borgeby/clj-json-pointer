@@ -28,4 +28,4 @@ nested access or updates, like `get-in`, `assoc-in` and `update-in`:
 
 ## Development
 
-`clj -X:test` to run the unit tests
+`clj -X:test` to run the unit tests, or `shadow-cljs compile test && node target/cljs-test.js` for ClojureScript

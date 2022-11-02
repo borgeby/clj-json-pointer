@@ -1,7 +1,14 @@
+# clj
+target/
+
+# cljs
+node_modules/
+.shadow-cljs/
+
+# tooling
 .clj-kondo/.cache
 .cpcache
 .lsp
 .idea
 .nrepl-*
-
 *.iml

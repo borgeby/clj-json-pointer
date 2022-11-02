@@ -1,9 +1,6 @@
 (ns borge.by.clj-json-pointer
   (:require [clojure.string :as str]))
 
-(defn- numeric? [s]
-  (re-find #"^\d+$" s))
-
 (defn escape [s]
   (-> s (str/replace #"~" "~0") (str/replace "/" "~1")))
 
@@ -23,8 +20,8 @@
         :else
         (let [part (first parts*)
               pmod (cond-> part
-                           (and (numeric? part) (vector? obj*)) (parse-long)
-                           (and (= "-" part)    (vector? obj*)) ((fn [_] (count obj*))))]
+                           (and (re-find #"^\d+$" part) (vector? obj*)) (parse-long)
+                           (and (= "-" part)    (vector? obj*))         ((fn [_] (count obj*))))]
           (recur (get obj* pmod) (rest parts*) (conj path* pmod)))))))
 
 (defn- op-add [obj path value]
