@@ -23,7 +23,20 @@ nested access or updates, like `get-in`, `assoc-in` and `update-in`:
     {"users"
      [{"name" "joe"  "roles" ["reports-writer"]}]}}})
 
-(get-in org (json-pointer/->vec org "/department/tech/users/1/roles")) ; => ["platform" "devops"]
+(let [path (json-pointer/->vec org "/department/tech/users/1/roles") ; => ["department" "tech" 1 "users" "roles"]
+      roles (get-in org path)]                                       ; => ["platform" "devops"]
+  (do (something (with roles))))
+```
+
+These simple building blocks are used to implement the various operations of JSON `patch`:
+
+```clojure
+(json-pointer/patch {} [{"op" "add" "path" "/foo" "value" "bar"}])                ; => {"foo" "bar"}
+(json-pointer/patch {"foo" "bar"} [{"op" "remove" "path" "/foo"}])                ; => {}
+(json-pointer/patch {"foo" "bar"} [{"op" "replace" "path" "/foo" "value" "baz"}]) ; => {"foo" "baz"}
+(json-pointer/patch {"foo" "bar"} [{"op" "copy" "from" "/foo" "path" "/baz"}])    ; => {"foo" "baz" "baz" "bar"}
+(json-pointer/patch {"foo" "bar"} [{"op" "move" "from" "/foo" "path" "/baz"}])    ; => {"baz" "bar"}
+(json-pointer/patch {"foo" "bar"} [{"op" "test" "path" "/foo" "value" "bar"}])    ; => {"foo" "bar"}
 ```
 
 ## Development
