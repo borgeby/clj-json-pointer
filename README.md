@@ -31,12 +31,14 @@ nested access or updates, like `get-in`, `assoc-in` and `update-in`:
 These simple building blocks are used to implement the various operations of JSON `patch`:
 
 ```clojure
-(json-pointer/patch {} [{"op" "add" "path" "/foo" "value" "bar"}])                ; => {"foo" "bar"}
-(json-pointer/patch {"foo" "bar"} [{"op" "remove" "path" "/foo"}])                ; => {}
-(json-pointer/patch {"foo" "bar"} [{"op" "replace" "path" "/foo" "value" "baz"}]) ; => {"foo" "baz"}
-(json-pointer/patch {"foo" "bar"} [{"op" "copy" "from" "/foo" "path" "/baz"}])    ; => {"foo" "baz" "baz" "bar"}
-(json-pointer/patch {"foo" "bar"} [{"op" "move" "from" "/foo" "path" "/baz"}])    ; => {"baz" "bar"}
-(json-pointer/patch {"foo" "bar"} [{"op" "test" "path" "/foo" "value" "bar"}])    ; => {"foo" "bar"}
+(json-pointer/patch {}
+  [{"op" "add" "path" "/foo" "value" "bar"}           ; => {"foo" "bar"}
+   {"op" "add" "path" "/bar" "value" "baz"}           ; => {"foo" "bar" "bar" "baz}
+   {"op" "remove" "path" "/foo"}                      ; => {"bar" "baz"}
+   {"op" "replace" "path" "/bar" "value" "foo"}       ; => {"bar" "foo"}          
+   {"op" "copy" "from" "/bar" "path" "/baz"}          ; => {"bar" "foo" "baz" "foo"}                
+   {"op" "move" "from" "/baz" "path" "/foo"}          ; => {"foo" "foo"}
+   {"op" "test" "path" "/foo" "value" "foo"}])        ; => {"foo" "foo"}
 ```
 
 ## Development
