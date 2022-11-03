@@ -6,7 +6,7 @@
 
 (defn unescape [s]
   (if (str/includes? s "~") ; replace is fairly expensive, and escaping fairly rare — optimize for the common case
-    (-> s (str/replace #"~0" "~") (str/replace #"~1" "/"))
+    (-> s (str/replace #"~1" "/") (str/replace #"~0" "~"))
     s))
 
 (defn ->vec [obj pointer]
