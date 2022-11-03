@@ -13,6 +13,8 @@
 (deftest patch-add-test
   (testing "simple add"
     (is (= (patch {"a" 1} [{"op" "add" "path" "/b" "value" 2}]) {"a" 1 "b" 2})))
+  (testing "add with path /"
+    (is (= (patch {"a" 1} [{"op" "add" "path" "/" "value" "foo"}]) {"a" 1 "" "foo"})))
   (testing "add nested"
     (is (= (patch {"a" {"b" 2}} [{"op" "add" "path" "/a/c" "value" 3}]) {"a" {"b" 2 "c" 3}})))
   (testing "add to array"
@@ -76,3 +78,41 @@
   (testing "nested test, with array"
     (is (= (patch {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}} [{"op" "test" "path" "/a/b/c/0" "value" 1}])
            {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}}))))
+
+(deftest whole-document-test
+  (testing "add whole document"
+    (is (= (patch {"a" 1} [{"op" "add" "path" "" "value" "foo"}]) "foo")))
+  (testing "copy whole document to path"
+    (is (= (patch {"a" 1} [{"op" "copy" "path" "/b" "from" ""}]) {"a" 1 "b" {"a" 1}})))
+  (testing "copy from to whole document"
+    (is (= (patch {"a" 1} [{"op" "copy" "path" "" "from" "/a"}]) 1)))
+  (testing "copy whole document to whole document"
+    (is (= (patch {"a" 1} [{"op" "copy" "path" "" "from" ""}]) {"a" 1})))
+  (testing "move from to whole document"
+    (is (= (patch {"a" 1} [{"op" "move" "from" "/a" "path" ""}]) 1)))
+  (testing "remove whole document"
+    (is (= (patch {"a" 1} [{"op" "remove" "path" ""}]) nil)))
+  (testing "replace whole document"
+    (is (= (patch {"a" 1} [{"op" "replace" "path" "" "value" "foo"}]) "foo"))))
+
+(deftest slash->-empty-string-key-test
+  (testing "add to /"
+    (is (= (patch {"a" 1} [{"op" "add" "path" "/" "value" "foo"}]) {"a" 1 "" "foo"})))
+  (testing "copy to /"
+    (is (= (patch {"a" 1} [{"op" "copy" "path" "/" "from" "/a"}]) {"a" 1 "" 1})))
+  (testing "copy from /"
+    (is (= (patch {"a" 1 "" 2} [{"op" "copy" "path" "/a" "from" "/"}]) {"a" 2 "" 2})))
+  (testing "move to /"
+    (is (= (patch {"a" 1} [{"op" "move" "path" "/" "from" "/a"}]) {"" 1})))
+  (testing "move from /"
+    (is (= (patch {"a" 1 "" 2} [{"op" "move" "path" "/a" "from" "/"}]) {"a" 2})))
+  (testing "remove from /"
+    (is (= (patch {"a" 1 "" 2} [{"op" "remove" "path" "/"}]) {"a" 1})))
+  (testing "replace value at /"
+    (is (= (patch {"a" 1 "" 2} [{"op" "replace" "path" "/" "value" "foo"}]) {"a" 1 "" "foo"})))
+  (testing "test value at /"
+    (is (= (patch {"a" 1 "" 2} [{"op" "test" "path" "/" "value" 2}]) {"a" 1 "" 2}))))
+
+(deftest leading-hash-is-stripped
+  (testing "add with leading hash"
+    (is (= (patch {"a" 1} [{"op" "add" "path" "#/b" "value" "foo"}]) {"a" 1 "b" "foo"}))))
