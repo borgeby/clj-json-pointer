@@ -8,6 +8,7 @@ node_modules/
 # tooling
 .clj-kondo/.cache
 .cpcache
+.eastwood
 .lsp
 .idea
 .nrepl-*

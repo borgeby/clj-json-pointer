@@ -24,9 +24,10 @@
       (throw (ex-info (str "can't traverse past non-existent node: " (last path*)) {:type :not-found :path path*}))
       :else
       (let [part (first parts*)
-            pmod (cond-> part
-                         (and (vector? obj*) (re-find #"^\d+$" part)) (parse-long)
-                         (and (vector? obj*) (= "-" part))            ((constantly (count obj*))))]
+            pmod (cond
+                   (and (vector? obj*) (re-find #"^\d+$" part)) (parse-long part)
+                   (and (vector? obj*) (= "-" part))            (count obj*)
+                   :else part)]
         (recur (get obj* pmod) (subvec parts* 1) (conj path* pmod))))))
 
 (defn- strip-hash [s]
@@ -41,8 +42,7 @@
     (assoc-in obj (->vec obj (slash->empty path)) value)))
 
 (defn- op-remove [obj path]
-  (if (= "" path) ; whole document
-    nil
+  (when-not (= "" path) ; whole document
     (let [v (->vec obj (slash->empty path))]
       (if (> (count v) 1)
         (update-in obj (pop v) dissoc (peek v))
@@ -64,7 +64,7 @@
       (get-in obj (->vec obj (slash->empty from)))
       (if (= "" from)
         (throw (ex-info "can't move from entire document to path" {:type "illegal operation" :operation "move"}))
-        (-> (op-copy obj path from) (op-remove from))))))
+        (-> obj (op-copy path from) (op-remove from))))))
 
 (defn- op-test [obj path value]
   (if (= value (get-in obj (->vec obj (slash->empty path))))
@@ -77,10 +77,10 @@
     (case op
       "add"     (op-add obj path value)
       "remove"  (op-remove obj path)
-      "replace" (-> (op-remove obj path) (op-add path value))
+      "replace" (-> obj (op-remove path) (op-add path value))
       "copy"    (op-copy obj path from)
       "move"    (op-move obj path from)
-      "test"    (-> (op-test obj path value))
+      "test"    (op-test obj path value)
       (throw (ex-info (str "unknown operation: " op) {:type "unknown operation" :operation op})))))
 
 (defn patch

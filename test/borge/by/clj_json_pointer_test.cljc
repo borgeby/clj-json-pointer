@@ -85,7 +85,7 @@
   (testing "move from to whole document"
     (is (= (patch {"a" 1} [{"op" "move" "from" "/a" "path" ""}]) 1)))
   (testing "remove whole document"
-    (is (= (patch {"a" 1} [{"op" "remove" "path" ""}]) nil)))
+    (is (nil? (patch {"a" 1} [{"op" "remove" "path" ""}]))))
   (testing "replace whole document"
     (is (= (patch {"a" 1} [{"op" "replace" "path" "" "value" "foo"}]) "foo"))))
 
