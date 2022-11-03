@@ -1,14 +1,6 @@
 (ns borge.by.clj-json-pointer-test
   (:require [clojure.test :refer [deftest is testing]]
-            [borge.by.clj-json-pointer :refer [escape patch unescape]]))
-
-(deftest escape-test
-  (testing "escape string"
-    (is (= (escape "b~a/r") "b~0a~1r"))))
-
-(deftest unescape-test
-  (testing "unescape string"
-    (is (= (unescape "b~0a~1r") "b~a/r"))))
+            [borge.by.clj-json-pointer :refer [patch]]))
 
 (deftest patch-add-test
   (testing "simple add"
@@ -77,7 +69,9 @@
     (is (= (patch {"a" {"b" {"c" 1}}} [{"op" "test" "path" "/a/b/c" "value" 1}]) {"a" {"b" {"c" 1}}})))
   (testing "nested test, with array"
     (is (= (patch {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}} [{"op" "test" "path" "/a/b/c/0" "value" 1}])
-           {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}}))))
+           {"a" {"b" {"c" [1 {"d" 2 "e" 3}]}}})))
+  (testing "null"
+    (is (= (patch {"a" nil} [{"op" "test" "path" "/a" "value" nil}]) {"a" nil}))))
 
 (deftest whole-document-test
   (testing "add whole document"
