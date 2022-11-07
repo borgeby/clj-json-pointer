@@ -1,8 +1,8 @@
 (ns borge.by.clj-json-pointer
-  (:require [clojure.string :as str]))
+  (:require [clojure.set :as set]
+            [clojure.string :as str]))
 
-(defn- unescape
-  [s]
+(defn- unescape [s]
   (if (str/includes? s "~") ; replace is fairly expensive, and escaping fairly rare — optimize for the common case
     (-> s (str/replace #"~1" "/") (str/replace #"~0" "~"))
     s))
@@ -10,11 +10,27 @@
 (defn- ->unescaped-parts [pointer]
   (if (= "" pointer)
     [""]
-    (mapv unescape (rest (str/split pointer #"/")))))
+    (let [parts (mapv unescape (rest (str/split pointer #"/")))]
+      (if (str/ends-with? pointer "/") ; turn /foo/ into ["foo" ""]
+        (conj parts "")
+        parts))))
+
+(defn- valid-number? [s]
+  (when-not (and (> (count s) 1) (str/starts-with? s "0"))
+    (re-find #"^\d+$" s)))
+
+(defn- valid-path? [s]
+  (or (= s "") (str/starts-with? s "/") (str/starts-with? s "#/")))
+
+(defn- must-get-in [obj path]
+  (if (= ::not-found (get-in obj path ::not-found))
+    (throw (ex-info "nonexistent attribute" {:type :not-found :path path}))
+    obj)) ; we never have use for existing values, so return object instead for chaining
 
 (defn ->vec
   "Convert JSON pointer to vector in the format accepted by get-in, assoc-in and update-in. Uses provided
-  obj to ensure that any path traversed actually exists, and will throw if not"
+  obj to ensure that any path (minus the last elements, as we need to allow adding new ones) traversed actually exists
+  in the data structure, and will throw if not"
   [obj pointer]
   (loop [obj* obj parts* (->unescaped-parts pointer) path* []]
     (cond
@@ -25,10 +41,14 @@
       :else
       (let [part (first parts*)
             pmod (cond
-                   (and (vector? obj*) (re-find #"^\d+$" part)) (parse-long part)
-                   (and (vector? obj*) (= "-" part))            (count obj*)
+                   (and (vector? obj*) (valid-number? part)) (parse-long part)
+                   (and (vector? obj*) (= "-" part))         (count obj*)
+                   (vector? obj*) (throw (ex-info (str "only numbers and '-' allowed to access array, got: " part)
+                                                  {:type "invalid pointer" :path path*}))
                    :else part)]
-        (recur (get obj* pmod) (subvec parts* 1) (conj path* pmod))))))
+        (if (and (vector? obj*) (number? pmod) (> pmod (count obj*)))
+          (throw (ex-info (str "can't traverse past size of vector: " (last path*)) {:type :not-found :path path*}))
+          (recur (get obj* pmod) (subvec parts* 1) (conj path* pmod)))))))
 
 (defn- strip-hash [s]
   (if (str/starts-with? s "#") (subs s 1) s))
@@ -36,52 +56,80 @@
 (defn- slash->empty [s]
   (if (= "/" s) "" s))
 
+(defn- insert-at [v pos value]
+  (into (conj (subvec v 0 pos) value) (subvec v pos)))
+
+(defn- add [obj v value]
+  (if (vector? obj)
+    (insert-at obj (peek v) value)
+    (assoc-in obj v value)))
+
 (defn- op-add [obj path value]
   (if (= "" path) ; whole document
     value         ; replaced by value
-    (assoc-in obj (->vec obj (slash->empty path)) value)))
-
-(defn- op-remove [obj path]
-  (when-not (= "" path) ; whole document
     (let [v (->vec obj (slash->empty path))]
       (if (> (count v) 1)
-        (update-in obj (pop v) dissoc (peek v))
-        (dissoc obj (first v))))))
+        (let [vp (pop v) next-last (get-in obj vp)] ; special case for inserting into vector nested under obj
+          (if (vector? next-last)
+            (assoc-in obj vp (insert-at next-last (peek v) value))
+            (add obj v value)))
+        (add obj v value)))))
+
+(defn- op-remove [obj path]
+  (when (not= "" path)
+    (let [v (->vec obj (slash->empty path))
+          _ (must-get-in obj v)]
+      (if (vector? obj)
+        (into (subvec obj 0 (peek v)) (subvec obj (inc (peek v))))
+        (if (> (count v) 1)
+          (update-in obj (pop v) dissoc (peek v))
+          (dissoc obj (first v)))))))
 
 (defn- op-copy [obj path from]
-  (if (and (= "" path) (= "" from)) ; whole document copied to itself
+  (if (= from path)
     obj
     (if (= "" path) ; 'from' copied to entire document
       (get-in obj (->vec obj (slash->empty from)))
       (if (= "" from) ; whole document copied to 'path'
         (op-add obj path obj)
-        (op-add obj path (get-in obj (->vec obj (slash->empty from))))))))
+        (let [val (get-in obj (->vec obj (slash->empty from)) ::not-found)]
+          (if (= val ::not-found)
+            (throw (ex-info "nonexistent attribute" {:type "not found" :op "copy" :path path}))
+            (op-add obj path val)))))))
 
 (defn- op-move [obj path from]
-  (if (and (= "" path) (= "" from)) ; whole document moved to itself
+  (if (= from path)
     obj
     (if (= "" path) ; move to whole document
       (get-in obj (->vec obj (slash->empty from)))
       (if (= "" from)
-        (throw (ex-info "can't move from entire document to path" {:type "illegal operation" :operation "move"}))
+        (throw (ex-info "can't move from entire document to path" {:type "illegal operation" :op "move"}))
         (-> obj (op-copy path from) (op-remove from))))))
 
 (defn- op-test [obj path value]
-  (if (= value (get-in obj (->vec obj (slash->empty path))))
-    obj
-    (throw (ex-info (str "test operation failure for path " path " and value " value) {:type "test operation failure"
-                                                                                       :operation "test"}))))
+  (when-not (and (= "" path) (= obj value)) ; whole document — why should this return nil?
+    (if (= value (get-in obj (->vec obj (slash->empty path))))
+      obj
+      (throw (ex-info (str "test failure for path " path " and value " value) {:type "test failure" :op "test"})))))
 
-(defn- apply-patch [obj {:strs [op path value from]}]
-  (let [path (strip-hash path)]
+(defn- require-keys [patch ks]
+  (let [missing (set/difference ks (set (keys patch)))]
+    (if (pos? (count missing))
+      (throw (ex-info (str "missing keys " (str/join ", " missing)) {:tupe "invalid patch" :op (get patch "op")}))
+      patch)))
+
+(defn apply-patch [obj {:strs [op path value from] :as patch}]
+  (when     (nil? path)        (throw (ex-info "missing path" {:type "missing path" :op op})))
+  (when-not (valid-path? path) (throw (ex-info "invalid path" {:type "invalid path" :op op :path path})))
+  (let [path (strip-hash path) with (partial require-keys patch)]
     (case op
-      "add"     (op-add obj path value)
-      "remove"  (op-remove obj path)
-      "replace" (-> obj (op-remove path) (op-add path value))
-      "copy"    (op-copy obj path from)
-      "move"    (op-move obj path from)
-      "test"    (op-test obj path value)
-      (throw (ex-info (str "unknown operation: " op) {:type "unknown operation" :operation op})))))
+      "add"     (and (with #{"value"})   (op-add obj path value))
+      "remove"                           (op-remove obj path)
+      "replace" (and (with #{"value"})   (-> obj (op-remove path) (op-add path value)))
+      "copy"    (and (with #{"from"})    (op-copy obj path from))
+      "move"    (and (with #{"from"})    (op-move obj path from))
+      "test"    (and (with #{"value"})   (op-test obj path value))
+      (throw    (ex-info (str "unknown operation: " op) {:type "unknown operation" :operation op})))))
 
 (defn patch
   "Applies a series of JSON patch operations on obj"

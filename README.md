@@ -31,7 +31,7 @@ nested access or updates, like `get-in`, `assoc-in` and `update-in`:
 These simple building blocks are used to implement the various operations of JSON `patch`:
 
 ```clojure
-(json-pointer/patch {}
+(json-pointer/patch {}                                ; => {}
   [{"op" "add" "path" "/foo" "value" "bar"}           ; => {"foo" "bar"}
    {"op" "add" "path" "/bar" "value" "baz"}           ; => {"foo" "bar" "bar" "baz}
    {"op" "remove" "path" "/foo"}                      ; => {"bar" "baz"}
@@ -39,6 +39,12 @@ These simple building blocks are used to implement the various operations of JSO
    {"op" "copy" "from" "/bar" "path" "/baz"}          ; => {"bar" "foo" "baz" "foo"}                
    {"op" "move" "from" "/baz" "path" "/foo"}          ; => {"foo" "foo"}
    {"op" "test" "path" "/foo" "value" "foo"}])        ; => {"foo" "foo"}
+```
+
+Or if you so prefer, use the `apply-patch` function, which applies a single patch to the provided data structure:
+
+```clojure
+(reduce json-pointer/apply-patch obj patches)
 ```
 
 ## Development
