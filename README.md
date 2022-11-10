@@ -1,4 +1,5 @@
 # cljs-json-pointer
+![build](https://github.com/borgeby/clj-json-pointer/actions/workflows/check.yml/badge.svg)
 
 Simple Clojure(Script) library for working with [JSON Pointer](https://www.rfc-editor.org/rfc/rfc6901) and 
 [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902/), with no external dependencies.
