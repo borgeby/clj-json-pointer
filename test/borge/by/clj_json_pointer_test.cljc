@@ -1,6 +1,7 @@
 (ns borge.by.clj-json-pointer-test
   (:require [clojure.test :refer [deftest is testing]]
-            [borge.by.clj-json-pointer :refer [patch]]))
+            [borge.by.clj-json-pointer :refer [patch]])
+  #?(:clj (:import (clojure.lang ExceptionInfo))))
 
 (deftest patch-add-test
   (testing "simple add"
@@ -82,8 +83,10 @@
     (is (= (patch {"a" 1} [{"op" "copy" "path" "" "from" "/a"}]) 1)))
   (testing "copy whole document to whole document"
     (is (= (patch {"a" 1} [{"op" "copy" "path" "" "from" ""}]) {"a" 1})))
-  (testing "move from to whole document"
+  (testing "move to to whole document"
     (is (= (patch {"a" 1} [{"op" "move" "from" "/a" "path" ""}]) 1)))
+  (testing "move from whole document"
+    (is (thrown? ExceptionInfo (patch {"a" 1} [{"op" "move" "from" "" "path" "/a"}]))))
   (testing "remove whole document"
     (is (nil? (patch {"a" 1} [{"op" "remove" "path" ""}]))))
   (testing "replace whole document"
