@@ -3,7 +3,8 @@
 [![codecov](https://codecov.io/github/borgeby/clj-json-pointer/branch/main/graph/badge.svg?token=0T30IGULJ2)](https://codecov.io/github/borgeby/clj-json-pointer)
 
 Simple Clojure(Script) library for working with [JSON Pointer](https://www.rfc-editor.org/rfc/rfc6901) and 
-[JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902/), with no external dependencies.
+[JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902/), with no external dependencies. The JSON Patch function
+provided passes all the tests from the JSON patch [conformance test suite](https://github.com/json-patch/json-patch-tests). 
 
 ## Usage instructions
 
@@ -46,7 +47,10 @@ These simple building blocks are used to implement the various operations of JSO
 Or if you so prefer, use the `apply-patch` function, which applies a single patch to the provided data structure:
 
 ```clojure
-(reduce json-pointer/apply-patch obj patches)
+(json-pointer/apply-patch {} {"op" "add" "path" "/a" "value" 1}) ; => {"a" 1}
+
+; or, more likely:
+(reduce json-pointer/apply-patch {} patches)
 ```
 
 ## Development
