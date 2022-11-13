@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>borge.by</groupId>
+    <artifactId>clj-json-pointer</artifactId>
+    <name>clj-json-pointer</name>
+    <description>Simple Clojure(Script) library for working with JSON Pointer and JSON Patch, with no external dependencies.</description>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+    </build>
+    <developers>
+        <developer>
+            <name>Anders Eknert</name>
+            <email>anders@eknert.com</email>
+        </developer>
+    </developers>
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:git://github.com/borgeby/clj-json-pointer.git</connection>
+        <developerConnection>scm:git:ssh://github.com/borgeby/clj-json-pointer.git</developerConnection>
+        <url>https://github.com/borgeby/clj-json-pointer.git</url>
+    </scm>
+</project>
