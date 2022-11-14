@@ -1,6 +1,6 @@
 {
   "name": "clj-json-pointer",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": false,
   "devDependencies": {
     "shadow-cljs": "2.20.7"

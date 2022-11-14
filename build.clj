@@ -2,9 +2,9 @@
   (:refer-clojure :exclude [compile])
   (:require [clojure.tools.build.api :as b]))
 
-(def version "0.1.0")
+(def version "1.0.0")
 
-(def lib 'borge.by/clj-json-pointer)
+(def lib 'by.borge/clj-json-pointer)
 (def basis (b/create-basis {:project "deps.edn"}))
 (def class-dir "target/classes")
 (def jar-file (format "target/%s-%s.jar" (name lib) version))

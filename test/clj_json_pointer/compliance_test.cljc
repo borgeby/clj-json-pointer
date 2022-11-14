@@ -1,7 +1,7 @@
-(ns borge.by.compliance-test
+(ns clj-json-pointer.compliance-test
   "Implementation of the JSON patch compliance test suite from https://github.com/json-patch/json-patch-tests"
   (:require [clojure.test :refer [deftest is testing]]
-            [borge.by.clj-json-pointer :as json-pointer])
+            [clj-json-pointer.core :as json-pointer])
   #?(:clj (:import (clojure.lang ExceptionInfo))))
 
 (deftest json-patch-compliance-tests

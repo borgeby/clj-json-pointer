@@ -1,6 +1,6 @@
-(ns borge.by.clj-json-pointer-test
+(ns clj-json-pointer.unit-test
   (:require [clojure.test :refer [deftest is testing]]
-            [borge.by.clj-json-pointer :refer [patch]])
+            [clj-json-pointer.core :refer [patch]])
   #?(:clj (:import (clojure.lang ExceptionInfo))))
 
 (deftest patch-add-test

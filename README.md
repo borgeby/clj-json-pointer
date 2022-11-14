@@ -14,7 +14,7 @@ nested access or updates, like `get-in`, `assoc-in` and `update-in`:
 
 ```clojure
 (ns app
-  (:require [borge.by.clj-json-pointer :as json-pointer]))
+  (:require [clj-json-pointer.core :as jp]))
 
 (def org
   {"department"
@@ -26,31 +26,31 @@ nested access or updates, like `get-in`, `assoc-in` and `update-in`:
     {"users"
      [{"name" "joe"  "roles" ["reports-writer"]}]}}})
 
-(let [path (json-pointer/->vec org "/department/tech/users/1/roles") ; => ["department" "tech" 1 "users" "roles"]
-      roles (get-in org path)]                                       ; => ["platform" "devops"]
+(let [path (jp/->vec org "/department/tech/users/1/roles") ; => ["department" "tech" 1 "users" "roles"]
+      roles (get-in org path)]                             ; => ["platform" "devops"]
   (do (something (with roles))))
 ```
 
 These simple building blocks are used to implement the various operations of JSON `patch`:
 
 ```clojure
-(json-pointer/patch {}                                ; => {}
-  [{"op" "add" "path" "/foo" "value" "bar"}           ; => {"foo" "bar"}
-   {"op" "add" "path" "/bar" "value" "baz"}           ; => {"foo" "bar" "bar" "baz}
-   {"op" "remove" "path" "/foo"}                      ; => {"bar" "baz"}
-   {"op" "replace" "path" "/bar" "value" "foo"}       ; => {"bar" "foo"}          
-   {"op" "copy" "from" "/bar" "path" "/baz"}          ; => {"bar" "foo" "baz" "foo"}                
-   {"op" "move" "from" "/baz" "path" "/foo"}          ; => {"foo" "foo"}
-   {"op" "test" "path" "/foo" "value" "foo"}])        ; => {"foo" "foo"}
+(jp/patch {}                                        ; => {}
+  [{"op" "add" "path" "/foo" "value" "bar"}         ; => {"foo" "bar"}
+   {"op" "add" "path" "/bar" "value" "baz"}         ; => {"foo" "bar" "bar" "baz}
+   {"op" "remove" "path" "/foo"}                    ; => {"bar" "baz"}
+   {"op" "replace" "path" "/bar" "value" "foo"}     ; => {"bar" "foo"}          
+   {"op" "copy" "from" "/bar" "path" "/baz"}        ; => {"bar" "foo" "baz" "foo"}                
+   {"op" "move" "from" "/baz" "path" "/foo"}        ; => {"foo" "foo"}
+   {"op" "test" "path" "/foo" "value" "foo"}])      ; => {"foo" "foo"}
 ```
 
 Or if you so prefer, use the `apply-patch` function, which applies a single patch to the provided data structure:
 
 ```clojure
-(json-pointer/apply-patch {} {"op" "add" "path" "/a" "value" 1}) ; => {"a" 1}
+(jp/apply-patch {} {"op" "add" "path" "/a" "value" 1}) ; => {"a" 1}
 
 ; or, more likely:
-(reduce json-pointer/apply-patch {} patches)
+(reduce jp/apply-patch {} patches)
 ```
 
 ## Development

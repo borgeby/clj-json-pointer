@@ -1,4 +1,4 @@
-(ns borge.by.clj-json-pointer
+(ns clj-json-pointer.core
   (:require [clojure.set :as set]
             [clojure.string :as str]))
 
