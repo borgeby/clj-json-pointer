@@ -22,9 +22,11 @@
                 :lib lib
                 :version version
                 :basis basis
+                :src-pom "./build/pom.xml"
                 :src-dirs ["src"]}))
 
 (defn jar [_]
+  (compile nil)
   (pom nil)
   (b/copy-dir {:src-dirs ["src"] :target-dir class-dir})
   (b/jar {:class-dir class-dir :jar-file jar-file}))

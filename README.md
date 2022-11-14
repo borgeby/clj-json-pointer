@@ -55,4 +55,12 @@ Or if you so prefer, use the `apply-patch` function, which applies a single patc
 
 ## Development
 
-`clj -X:test` to run the unit tests, or `shadow-cljs compile test && node target/cljs-test.js` for ClojureScript
+### Test
+
+* `clj -X:test` to run the unit and compliance tests
+* `shadow-cljs compile test && node target/cljs-test.js` for ClojureScript
+
+### Deploy
+
+* `clj -T:build jar`
+* `clj -X:deploy`

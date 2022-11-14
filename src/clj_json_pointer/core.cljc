@@ -130,7 +130,9 @@
       (throw (ex-info (str "missing keys " (str/join ", " missing)) {:type "invalid patch" :op op}))
       patch))))
 
-(defn apply-patch [obj {:strs [op path value from] :as patch}]
+(defn apply-patch
+  "Applies single JSON patch operation on obj"
+  [obj {:strs [op path value from] :as patch}]
   (require-keys patch)
   (when-not (valid-path? path) (throw (ex-info "invalid path" {:type "invalid path" :op op :path path})))
   (let [path (strip-hash path)]
