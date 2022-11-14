@@ -115,6 +115,8 @@
     (is (= (patch {"a" 1} [{"op" "add" "path" "#/b" "value" "foo"}]) {"a" 1 "b" "foo"}))))
 
 (deftest required-attributes-test
+  (testing "missing op"
+    (is (thrown? ExceptionInfo (patch {"a" 1} [{"path" "/b" "value" "foo"}]))))
   (testing "add requires value"
     (is (thrown? ExceptionInfo (patch {"a" 1} [{"op" "add" "path" "/b"}]))))
   (testing "replace requires value"

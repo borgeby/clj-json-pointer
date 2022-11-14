@@ -20,7 +20,8 @@
     (re-find #"^\d+$" s)))
 
 (defn- valid-path? [s]
-  (or (= s "") (str/starts-with? s "/") (str/starts-with? s "#/")))
+  (and (some? s)
+       (or (= s "") (str/starts-with? s "/") (str/starts-with? s "#/"))))
 
 (defn- must-get-in [obj path]
   (if (= ::not-found (get-in obj path ::not-found))
@@ -46,7 +47,7 @@
                    (vector? obj*) (throw (ex-info (str "only numbers and '-' allowed to access array, got: " part)
                                                   {:type "invalid pointer" :path path*}))
                    :else part)]
-        (if (and (vector? obj*) (number? pmod) (> pmod (count obj*)))
+        (if (and (number? pmod) (> pmod (count obj*)))
           (throw (ex-info (str "can't traverse past size of vector: " (last path*)) {:type :not-found :path path*}))
           (recur (get obj* pmod) (subvec parts* 1) (conj path* pmod)))))))
 
@@ -112,23 +113,34 @@
       obj
       (throw (ex-info (str "test failure for path " path " and value " value) {:type "test failure" :op "test"})))))
 
-(defn- require-keys [patch ks]
-  (let [missing (set/difference ks (set (keys patch)))]
+(def ^:private required-keys
+  {"add"     #{"path" "value"}
+   "remove"  #{"path"}
+   "replace" #{"path" "value"}
+   "copy"    #{"path" "from"}
+   "move"    #{"path" "from"}
+   "test"    #{"path" "value"}})
+
+(defn- require-keys [{:strs [op] :as patch}]
+  (if (nil? op)
+    (throw (ex-info "missing op attribute" {:type "invalid patch" :op nil}))
+  (let [required (get required-keys op)
+        missing  (set/difference required (set (keys patch)))]
     (if (pos? (count missing))
-      (throw (ex-info (str "missing keys " (str/join ", " missing)) {:tupe "invalid patch" :op (get patch "op")}))
-      patch)))
+      (throw (ex-info (str "missing keys " (str/join ", " missing)) {:type "invalid patch" :op op}))
+      patch))))
 
 (defn apply-patch [obj {:strs [op path value from] :as patch}]
-  (when     (nil? path)        (throw (ex-info "missing path" {:type "missing path" :op op})))
+  (require-keys patch)
   (when-not (valid-path? path) (throw (ex-info "invalid path" {:type "invalid path" :op op :path path})))
-  (let [path (strip-hash path) with-required (partial require-keys patch)]
+  (let [path (strip-hash path)]
     (case op
-      "add"     (and (with-required #{"value"})   (op-add obj path value))
-      "remove"                                    (op-remove obj path)
-      "replace" (and (with-required #{"value"})   (-> obj (op-remove path) (op-add path value)))
-      "copy"    (and (with-required #{"from"})    (op-copy obj path from))
-      "move"    (and (with-required #{"from"})    (op-move obj path from))
-      "test"    (and (with-required #{"value"})   (op-test obj path value))
+      "add"     (op-add obj path value)
+      "remove"  (op-remove obj path)
+      "replace" (-> obj (op-remove path) (op-add path value))
+      "copy"    (op-copy obj path from)
+      "move"    (op-move obj path from)
+      "test"    (op-test obj path value)
       (throw    (ex-info (str "unknown operation: " op) {:type "unknown operation" :operation op})))))
 
 (defn patch
