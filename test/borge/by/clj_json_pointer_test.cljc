@@ -113,3 +113,15 @@
 (deftest leading-hash-is-stripped
   (testing "add with leading hash"
     (is (= (patch {"a" 1} [{"op" "add" "path" "#/b" "value" "foo"}]) {"a" 1 "b" "foo"}))))
+
+(deftest required-attributes-test
+  (testing "add requires value"
+    (is (thrown? ExceptionInfo (patch {"a" 1} [{"op" "add" "path" "/b"}]))))
+  (testing "replace requires value"
+    (is (thrown? ExceptionInfo (patch {"a" 1} [{"op" "replace" "path" "/a"}]))))
+  (testing "test requires value"
+    (is (thrown? ExceptionInfo (patch {"a" 1} [{"op" "test" "path" "/b"}]))))
+  (testing "copy requires from"
+    (is (thrown? ExceptionInfo (patch {"a" 1} [{"op" "copy" "path" "/b"}]))))
+  (testing "move requires from"
+    (is (thrown? ExceptionInfo (patch {"a" 1} [{"op" "move" "path" "/b"}])))))

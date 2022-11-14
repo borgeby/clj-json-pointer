@@ -121,14 +121,14 @@
 (defn apply-patch [obj {:strs [op path value from] :as patch}]
   (when     (nil? path)        (throw (ex-info "missing path" {:type "missing path" :op op})))
   (when-not (valid-path? path) (throw (ex-info "invalid path" {:type "invalid path" :op op :path path})))
-  (let [path (strip-hash path) with (partial require-keys patch)]
+  (let [path (strip-hash path) with-required (partial require-keys patch)]
     (case op
-      "add"     (and (with #{"value"})   (op-add obj path value))
-      "remove"                           (op-remove obj path)
-      "replace" (and (with #{"value"})   (-> obj (op-remove path) (op-add path value)))
-      "copy"    (and (with #{"from"})    (op-copy obj path from))
-      "move"    (and (with #{"from"})    (op-move obj path from))
-      "test"    (and (with #{"value"})   (op-test obj path value))
+      "add"     (and (with-required #{"value"})   (op-add obj path value))
+      "remove"                                    (op-remove obj path)
+      "replace" (and (with-required #{"value"})   (-> obj (op-remove path) (op-add path value)))
+      "copy"    (and (with-required #{"from"})    (op-copy obj path from))
+      "move"    (and (with-required #{"from"})    (op-move obj path from))
+      "test"    (and (with-required #{"value"})   (op-test obj path value))
       (throw    (ex-info (str "unknown operation: " op) {:type "unknown operation" :operation op})))))
 
 (defn patch
