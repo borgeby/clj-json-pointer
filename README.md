@@ -1,5 +1,6 @@
 # cljs-json-pointer
 ![build](https://github.com/borgeby/clj-json-pointer/actions/workflows/check.yml/badge.svg)
+[![Clojars Project](https://img.shields.io/clojars/v/by.borge/clj-json-pointer.svg)](https://clojars.org/by.borge/clj-json-pointer)
 [![codecov](https://codecov.io/github/borgeby/clj-json-pointer/branch/main/graph/badge.svg?token=0T30IGULJ2)](https://codecov.io/github/borgeby/clj-json-pointer)
 
 Simple Clojure(Script) library for working with [JSON Pointer](https://www.rfc-editor.org/rfc/rfc6901) and 
