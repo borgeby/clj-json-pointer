@@ -1,6 +1,6 @@
 # cljs-json-pointer
 [![Clojars Project](https://img.shields.io/clojars/v/by.borge/clj-json-pointer.svg)](https://clojars.org/by.borge/clj-json-pointer)
-![cljdoc](https://cljdoc.org/badge/by.borge/clj-json-pointer)
+[![cljdoc](https://cljdoc.org/badge/by.borge/clj-json-pointer)](https://cljdoc.org/d/by.borge/clj-json-pointer)
 ![build](https://github.com/borgeby/clj-json-pointer/actions/workflows/check.yml/badge.svg)
 [![codecov](https://codecov.io/github/borgeby/clj-json-pointer/branch/main/graph/badge.svg?token=0T30IGULJ2)](https://codecov.io/github/borgeby/clj-json-pointer)
 
