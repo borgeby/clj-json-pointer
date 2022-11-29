@@ -14,7 +14,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
     - name: Install Clojure tools
-      uses: DeLaGuardo/setup-clojure@10.0
+      uses: DeLaGuardo/setup-clojure@10.1
       with:
         cli: 1.10.1.693
     - uses: actions/cache@v3
@@ -36,7 +36,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
     - name: Install Clojure tools
-      uses: DeLaGuardo/setup-clojure@10.0
+      uses: DeLaGuardo/setup-clojure@10.1
       with:
         cli: 1.10.1.693
     - uses: actions/cache@v3
@@ -58,7 +58,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
     - name: Install Clojure tools
-      uses: DeLaGuardo/setup-clojure@10.0
+      uses: DeLaGuardo/setup-clojure@10.1
       with:
         cli: 1.10.1.693
     - uses: actions/cache@v3
@@ -80,7 +80,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
     - name: Install Clojure tools
-      uses: DeLaGuardo/setup-clojure@10.0
+      uses: DeLaGuardo/setup-clojure@10.1
       with:
         cli: 1.10.1.693
     - uses: actions/cache@v3
@@ -110,7 +110,7 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
     - name: Install Clojure tools
-      uses: DeLaGuardo/setup-clojure@10.0
+      uses: DeLaGuardo/setup-clojure@10.1
       with:
         cli: 1.10.1.693
     - name: Cloverage
