@@ -16,7 +16,7 @@ jobs:
     - name: Install Clojure tools
       uses: DeLaGuardo/setup-clojure@10.1
       with:
-        cli: 1.10.1.693
+        cli: 1.11.1.1208
     - uses: actions/cache@v3
       with:
         path: |
@@ -38,7 +38,7 @@ jobs:
     - name: Install Clojure tools
       uses: DeLaGuardo/setup-clojure@10.1
       with:
-        cli: 1.10.1.693
+        cli: 1.11.1.1208
     - uses: actions/cache@v3
       with:
         path: |
@@ -60,7 +60,7 @@ jobs:
     - name: Install Clojure tools
       uses: DeLaGuardo/setup-clojure@10.1
       with:
-        cli: 1.10.1.693
+        cli: 1.11.1.1208
     - uses: actions/cache@v3
       with:
         path: |
@@ -82,7 +82,7 @@ jobs:
     - name: Install Clojure tools
       uses: DeLaGuardo/setup-clojure@10.1
       with:
-        cli: 1.10.1.693
+        cli: 1.11.1.1208
     - uses: actions/cache@v3
       with:
         path: |
@@ -112,7 +112,7 @@ jobs:
     - name: Install Clojure tools
       uses: DeLaGuardo/setup-clojure@10.1
       with:
-        cli: 1.10.1.693
+        cli: 1.11.1.1208
     - name: Cloverage
       run: clojure -M:cloverage
     - name: Upload to Codecov

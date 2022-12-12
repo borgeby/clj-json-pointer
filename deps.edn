@@ -1,7 +1,7 @@
 {:deps  {org.clojure/clojure {:mvn/version "1.11.1"}}
  :paths ["src"]
  :aliases
- {:build     {:deps        {io.github.clojure/tools.build {:git/tag "v0.8.4" :git/sha "8c3cd69"}}
+ {:build     {:deps        {io.github.clojure/tools.build {:git/tag "v0.8.5" :git/sha "9c738da"}}
               :extra-paths ["build"]
               :ns-default  build}
   :deploy    {:extra-deps {slipset/deps-deploy {:mvn/version "0.2.0"}}
@@ -24,4 +24,6 @@
               :main-opts   ["-m" "eastwood.lint" {}]}
   :kibit     {:extra-paths ["test"]
               :extra-deps  {tvaughan/kibit-runner {:mvn/version "1.0.1"}}
-              :main-opts   ["-m" "kibit-runner.cmdline"]}}}
+              :main-opts   ["-m" "kibit-runner.cmdline"]}
+  :outdated  {:deps {com.github.liquidz/antq {:mvn/version "RELEASE"}}
+              :main-opts ["-m" "antq.core"]}}}
